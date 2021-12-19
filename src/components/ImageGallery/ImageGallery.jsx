@@ -20,6 +20,7 @@ export default function ImageGallery({ searchImages, onClick }) {
   const refSearchImages = useRef();
 
   const handleFetchApi = async () => {
+    setStatus(PENDING);
     try {
       const collections = await API.fetchImages();
 
@@ -27,6 +28,7 @@ export default function ImageGallery({ searchImages, onClick }) {
         toast.error('images not found');
       }
 
+      setStatus(RESOLVED);
       setCollections(collections);
     } catch {
       toast.error('oops something went wrong');
@@ -36,19 +38,14 @@ export default function ImageGallery({ searchImages, onClick }) {
   useEffect(() => {
     refSearchImages.current = searchImages;
 
-    setStatus(PENDING);
-
     if (refSearchImages !== searchImages) {
       API.resetPage();
       API.query = searchImages;
-      setTimeout(() => {
-        handleFetchApi();
-        setStatus(RESOLVED);
-      }, 1000);
+      handleFetchApi();
     }
   }, [searchImages]);
 
-  const handleLoadMoreImage = async () => {
+  const handleLoadMoreCollections = async () => {
     API.incrementPage();
 
     const nextCollections = await API.fetchImages();
@@ -75,7 +72,9 @@ export default function ImageGallery({ searchImages, onClick }) {
             <ImageGalleryItem key={item.id} params={item} onClick={onClick} />
           ))}
         </List>
-        {collections.length > 0 && <Button onClick={handleLoadMoreImage} />}
+        {collections.length > 0 && (
+          <Button onClick={handleLoadMoreCollections} />
+        )}
       </>
     );
   }
