@@ -1,8 +1,8 @@
 {
-  "name": "goit-react-hw-04-hooks-phonebook",
+  "name": "goit-react-hw-04-hooks-images",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://DorianGarret.github.io/goit-react-hw-04-hooks-phonebook",
+  "homepage": "https://DorianGarret.github.io/goit-react-hw-04-hooks-images",
   "dependencies": {
     "@emotion/react": "^11.7.0",
     "@emotion/styled": "^11.6.0",
