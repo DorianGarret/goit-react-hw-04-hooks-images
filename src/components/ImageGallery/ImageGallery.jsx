@@ -21,12 +21,12 @@ export default function ImageGallery({ searchImages, onClick }) {
 
   const handleFetchApi = async () => {
     try {
-      API.resetPage();
-
       const collections = await API.fetchImages();
+
       if (!collections.length) {
         toast.error('images not found');
       }
+
       setCollections(collections);
     } catch {
       toast.error('oops something went wrong');
@@ -35,8 +35,11 @@ export default function ImageGallery({ searchImages, onClick }) {
 
   useEffect(() => {
     refSearchImages.current = searchImages;
+
     setStatus(PENDING);
+
     if (refSearchImages !== searchImages) {
+      API.resetPage();
       API.query = searchImages;
       setTimeout(() => {
         handleFetchApi();
@@ -47,8 +50,9 @@ export default function ImageGallery({ searchImages, onClick }) {
 
   const handleLoadMoreImage = async () => {
     API.incrementPage();
-    const nextPage = await API.fetchImages();
-    setCollections([...collections, ...nextPage]);
+
+    const nextCollections = await API.fetchImages();
+    setCollections([...collections, ...nextCollections]);
     scrollDown();
   };
 
