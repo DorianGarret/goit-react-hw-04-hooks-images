@@ -3,13 +3,13 @@ import { ToastContainer } from 'react-toastify';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Modal from 'components/Modal';
+import { FullSizeImageContext } from 'context/FullSizeImageContext';
 import { Header, Container, Main } from './App.styled';
 
 export default function App() {
   const [searchImages, setSearchImages] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [largeImage, setLargeImage] = useState({});
-
   const handleFormSubmit = searchImages => {
     setSearchImages(searchImages);
   };
@@ -41,10 +41,11 @@ export default function App() {
       </Header>
       <Container>
         <Main>
-          <ImageGallery
-            searchImages={searchImages}
-            onClick={handlerFullSizeImage}
-          />
+          <FullSizeImageContext.Provider
+            value={{ onClick: handlerFullSizeImage }}
+          >
+            <ImageGallery searchImages={searchImages} />
+          </FullSizeImageContext.Provider>
         </Main>
       </Container>
       <ToastContainer autoClose={2500} />

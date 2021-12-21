@@ -69,7 +69,7 @@ export default function ImageGallery({ searchImages, onClick }) {
       <>
         <List>
           {collections.map(item => (
-            <ImageGalleryItem key={item.id} params={item} onClick={onClick} />
+            <ImageGalleryItem key={item.id} params={item} />
           ))}
         </List>
         {collections.length > 0 && (
@@ -82,5 +82,4 @@ export default function ImageGallery({ searchImages, onClick }) {
 
 ImageGallery.propTypes = {
   searchImages: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
 };
