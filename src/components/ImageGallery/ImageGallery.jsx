@@ -14,7 +14,7 @@ const status = {
   RESOLVED: 'resolved',
 };
 const { PENDING, RESOLVED } = status;
-export default function ImageGallery({ searchImages, onClick }) {
+export default function ImageGallery({ searchImages }) {
   const [collections, setCollections] = useState([]);
   const [status, setStatus] = useState(PENDING);
   const refSearchImages = useRef();
@@ -47,7 +47,6 @@ export default function ImageGallery({ searchImages, onClick }) {
 
   const handleLoadMoreCollections = async () => {
     API.incrementPage();
-
     const nextCollections = await API.fetchImages();
     setCollections([...collections, ...nextCollections]);
     scrollDown();
