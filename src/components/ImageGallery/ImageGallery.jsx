@@ -28,8 +28,8 @@ export default function ImageGallery({ searchImages, onClick }) {
         toast.error('images not found');
       }
 
-      setStatus(RESOLVED);
       setCollections(collections);
+      setStatus(RESOLVED);
     } catch {
       toast.error('oops something went wrong');
     }
