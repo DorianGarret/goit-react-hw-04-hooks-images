@@ -9,18 +9,17 @@ import { List } from './ImageGallery.styled';
 
 const API = new Api();
 
-const status = {
+const STATUS = {
   PENDING: 'pending',
   RESOLVED: 'resolved',
 };
-const { PENDING, RESOLVED } = status;
 export default function ImageGallery({ searchImages }) {
   const [collections, setCollections] = useState([]);
-  const [status, setStatus] = useState(PENDING);
+  const [status, setStatus] = useState(STATUS.PENDING);
   const refSearchImages = useRef();
 
   const handleFetchApi = async () => {
-    setStatus(PENDING);
+    setStatus(STATUS.PENDING);
     try {
       const collections = await API.fetchImages();
 
@@ -29,7 +28,7 @@ export default function ImageGallery({ searchImages }) {
       }
 
       setCollections(collections);
-      setStatus(RESOLVED);
+      setStatus(STATUS.RESOLVED);
     } catch {
       toast.error('oops something went wrong');
     }
@@ -59,24 +58,24 @@ export default function ImageGallery({ searchImages }) {
     });
   };
 
-  if (status === PENDING) {
-    return <Loader />;
-  }
+  return (
+    <>
+      {status === STATUS.PENDING && <Loader />}
 
-  if (status === RESOLVED) {
-    return (
-      <>
-        <List>
-          {collections.map(item => (
-            <ImageGalleryItem key={item.id} params={item} />
-          ))}
-        </List>
-        {collections.length > 0 && (
-          <Button onClick={handleLoadMoreCollections} />
-        )}
-      </>
-    );
-  }
+      {status === STATUS.RESOLVED && (
+        <>
+          <List>
+            {collections.map(item => (
+              <ImageGalleryItem key={item.id} params={item} />
+            ))}
+          </List>
+          {collections.length > 0 && (
+            <Button onClick={handleLoadMoreCollections} />
+          )}
+        </>
+      )}
+    </>
+  );
 }
 
 ImageGallery.propTypes = {
