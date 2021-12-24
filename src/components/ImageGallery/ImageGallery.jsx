@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import Api from 'pixabayApi';
-import ImageGalleryItem from 'components/ImageGalleryItem';
+import ImageGalleryItem from 'components/ImageGallery/ImageGalleryItem';
 import Loader from 'components/Loader';
 import Button from 'components/Button';
 import { List } from './ImageGallery.styled';
