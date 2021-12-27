@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import Api from 'pixabayApi';
@@ -9,75 +9,111 @@ import { List } from './ImageGallery.styled';
 
 const API = new Api();
 
-const STATUS = {
+const status = {
+  IDLE: 'idle',
   PENDING: 'pending',
   RESOLVED: 'resolved',
 };
-export default function ImageGallery({ searchImages }) {
-  const [collections, setCollections] = useState([]);
-  const [status, setStatus] = useState(STATUS.PENDING);
-  const refSearchImages = useRef();
+const { IDLE, PENDING, RESOLVED } = status;
+export default class ImageGallery extends Component {
+  state = {
+    images: [],
+    status: PENDING,
+  };
 
-  const handleFetchApi = async () => {
-    setStatus(STATUS.PENDING);
+  async componentDidMount() {
     try {
-      const collections = await API.fetchImages();
-
-      if (!collections.length) {
-        toast.error('images not found');
-      }
-
-      setCollections(collections);
-      setStatus(STATUS.RESOLVED);
+      const images = await API.fetchImages();
+      this.setState({ images, status: IDLE });
     } catch {
       toast.error('oops something went wrong');
     }
-  };
+  }
 
-  useEffect(() => {
-    refSearchImages.current = searchImages;
+  async componentDidUpdate(prevProps, _prevState) {
+    const { searchImages } = this.props;
 
-    if (refSearchImages !== searchImages) {
-      API.resetPage();
-      API.query = searchImages;
-      handleFetchApi();
+    if (prevProps.searchImages !== searchImages) {
+      this.setState({
+        status: PENDING,
+      });
+
+      try {
+        API.resetPage();
+        API.query = searchImages;
+        const images = await API.fetchImages();
+
+        if (!images.length) {
+          toast.error('images not found');
+        }
+
+        this.setState({
+          images,
+          status: RESOLVED,
+        });
+      } catch {
+        toast.error('oops something went wrong');
+      }
     }
-  }, [searchImages]);
+  }
 
-  const handleLoadMoreCollections = async () => {
+  handleLoadMoreImage = async () => {
     API.incrementPage();
-    const nextCollections = await API.fetchImages();
-    setCollections([...collections, ...nextCollections]);
-    scrollDown();
+    const nextPage = await API.fetchImages();
+    this.setState(({ images }) => ({ images: [...images, ...nextPage] }));
+    this.scrollDown();
   };
 
-  const scrollDown = () => {
+  scrollDown() {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
-  };
+  }
 
-  return (
-    <>
-      {status === STATUS.PENDING && <Loader />}
+  render() {
+    const { images, status } = this.state;
 
-      {status === STATUS.RESOLVED && (
+    if (status === IDLE) {
+      return (
         <>
           <List>
-            {collections.map(item => (
-              <ImageGalleryItem key={item.id} params={item} />
+            {images.map(item => (
+              <ImageGalleryItem
+                key={item.id}
+                params={item}
+                onClick={this.props.onClick}
+              />
             ))}
           </List>
-          {collections.length > 0 && (
-            <Button onClick={handleLoadMoreCollections} />
-          )}
+          {images.length > 0 && <Button onClick={this.handleLoadMoreImage} />}
         </>
-      )}
-    </>
-  );
-}
+      );
+    }
 
+    if (status === PENDING) {
+      return <Loader />;
+    }
+
+    if (status === RESOLVED) {
+      return (
+        <>
+          <List>
+            {images.map(item => (
+              <ImageGalleryItem
+                key={item.id}
+                params={item}
+                onClick={this.props.onClick}
+              />
+            ))}
+          </List>
+          {images.length > 0 && <Button onClick={this.handleLoadMoreImage} />}
+        </>
+      );
+    }
+  }
+}
 ImageGallery.propTypes = {
   searchImages: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
 };

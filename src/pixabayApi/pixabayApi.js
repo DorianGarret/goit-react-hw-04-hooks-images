@@ -24,13 +24,14 @@ export default class PixabayApi {
       },
     });
 
-    const { data } = await setRequestSetting.get();
-
-    return this.getImagesParams(data);
+    const response = await setRequestSetting.get();
+    const data = await response.data;
+    const hits = await data.hits;
+    return this.getImagesParams(hits);
   }
 
-  getImagesParams({ hits }) {
-    return hits.map(({ id, webformatURL, largeImageURL, tags }) => {
+  getImagesParams(images) {
+    return images.map(({ id, webformatURL, largeImageURL, tags }) => {
       return {
         id,
         webformatURL,

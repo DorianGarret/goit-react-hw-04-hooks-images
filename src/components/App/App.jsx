@@ -1,59 +1,66 @@
-import { useState } from 'react';
+import React, { Component } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
 import Modal from 'components/Modal';
-import { FullSizeImageContext } from 'context/FullSizeImageContext';
 import { Header, Container, Main } from './App.styled';
 
-export default function App() {
-  const [searchImages, setSearchImages] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [largeImage, setLargeImage] = useState({});
-  const handleFormSubmit = searchImages => {
-    setSearchImages(searchImages);
+export default class App extends Component {
+  state = {
+    searchImages: '',
+    showModal: false,
+    largeImage: {},
   };
 
-  const toggleModal = () => {
-    setShowModal(!showModal);
-    if (showModal) {
-      setLargeImage({});
-    }
+  handleFormSubmit = searchImages => {
+    this.setState({ searchImages });
   };
 
-  const handlerFullSizeImage = event => {
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
+  handlerFullSizeImage = event => {
     const { id, alt, dataset } = event.target;
-    setLargeImage({
-      id,
-      alt,
-      src: dataset.full_size,
+    this.setState({
+      largeImage: {
+        id,
+        alt,
+        src: dataset.full_size,
+      },
     });
-
-    toggleModal();
+    this.toggleModal();
   };
-  const { id, src, alt } = largeImage;
-  return (
-    <>
-      <Header>
+  render() {
+    const {
+      searchImages,
+      showModal,
+      largeImage: { id, src, alt },
+    } = this.state;
+    return (
+      <>
+        <Header>
+          <Container>
+            <Searchbar onSubmit={this.handleFormSubmit} />
+          </Container>
+        </Header>
         <Container>
-          <Searchbar onSubmit={handleFormSubmit} />
+          <Main>
+            <ImageGallery
+              searchImages={searchImages}
+              onClick={this.handlerFullSizeImage}
+            />
+          </Main>
         </Container>
-      </Header>
-      <Container>
-        <Main>
-          <FullSizeImageContext.Provider
-            value={{ onClick: handlerFullSizeImage }}
-          >
-            <ImageGallery searchImages={searchImages} />
-          </FullSizeImageContext.Provider>
-        </Main>
-      </Container>
-      <ToastContainer autoClose={2500} />
-      {showModal && (
-        <Modal onClose={toggleModal}>
-          {<img id={id} src={src} alt={alt} />}
-        </Modal>
-      )}
-    </>
-  );
+        <ToastContainer autoClose={2500} />
+        {showModal && (
+          <Modal onClose={this.toggleModal}>
+            {<img id={id} src={src} alt={alt} />}
+          </Modal>
+        )}
+      </>
+    );
+  }
 }

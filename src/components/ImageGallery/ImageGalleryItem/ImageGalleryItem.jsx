@@ -1,12 +1,9 @@
 import PropTypes from 'prop-types';
-import { useContext } from 'react';
-import { FullSizeImageContext } from 'context/FullSizeImageContext';
 
 import { Item, Image } from './ImageGalleryItem.styled';
 
-export default function ImageGalleryItem({ params }) {
+export default function ImageGalleryItem({ params, onClick }) {
   const { id, webformatURL, largeImageURL, tags } = params;
-  const { onClick } = useContext(FullSizeImageContext);
   return (
     <Item>
       <Image
@@ -26,4 +23,5 @@ ImageGalleryItem.propTypes = {
     largeImageURL: PropTypes.string.isRequired,
     tags: PropTypes.string.isRequired,
   }),
+  onClick: PropTypes.func.isRequired,
 };
