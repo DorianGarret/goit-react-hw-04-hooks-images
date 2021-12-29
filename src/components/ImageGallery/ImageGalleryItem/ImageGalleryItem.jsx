@@ -2,8 +2,10 @@ import PropTypes from 'prop-types';
 
 import { Item, Image } from './ImageGalleryItem.styled';
 
-export default function ImageGalleryItem({ params, onClick }) {
-  const { id, webformatURL, largeImageURL, tags } = params;
+export default function ImageGalleryItem({
+  params: { id, webformatURL, largeImageURL, tags },
+  onClick,
+}) {
   return (
     <Item>
       <Image
@@ -11,7 +13,7 @@ export default function ImageGalleryItem({ params, onClick }) {
         src={webformatURL}
         alt={tags}
         data-full_size={largeImageURL}
-        onClick={onClick}
+        // onClick={onClick}
       />
     </Item>
   );

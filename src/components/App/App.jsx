@@ -1,29 +1,75 @@
-import React, { Component } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { useState, useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import fetchPictureCollection from 'API';
 import Searchbar from 'components/Searchbar';
 import ImageGallery from 'components/ImageGallery';
+import Button from 'components/Button';
 import Modal from 'components/Modal';
+import Loader from 'components/Loader';
 import { Header, Container, Main } from './App.styled';
 
-export default class App extends Component {
-  state = {
-    searchImages: '',
-    showModal: false,
-    largeImage: {},
+const STATUS = {
+  IDLE: 'idle',
+  PENDING: 'pending',
+  RESOLVED: 'resolved',
+};
+
+export default function App() {
+  const [query, setQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImage, setLargeImage] = useState({});
+  const [status, setStatus] = useState(STATUS.IDLE);
+
+  useEffect(() => {
+    const pictureCollectionHandler = async () => {
+      setStatus(STATUS.PENDING);
+      try {
+        const { hits, total } = await fetchPictureCollection(
+          query,
+          currentPage,
+        );
+
+        if (!total) {
+          toast.error('images not found');
+        }
+
+        setCollection(prevCollection => [...prevCollection, ...hits]);
+        setStatus(STATUS.RESOLVED);
+
+        setTimeout(() => {
+          scrollDown();
+        }, 500);
+      } catch {
+        toast.error('oops something went wrong');
+      }
+    };
+    pictureCollectionHandler();
+  }, [query, currentPage]);
+
+  const formSubmitHandler = query => {
+    setQuery(query);
+    setCurrentPage(1);
+    setCollection([]);
   };
 
-  handleFormSubmit = searchImages => {
-    this.setState({ searchImages });
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  const loadMoreHandler = () => {
+    setCurrentPage(prevPage => prevPage + 1);
   };
 
-  handlerFullSizeImage = event => {
-    const { id, alt, dataset } = event.target;
+  const scrollDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+
+  const fullSizeImageHandler = ({ target: { id, alt, dataset } }) => {
     this.setState({
       largeImage: {
         id,
@@ -33,34 +79,34 @@ export default class App extends Component {
     });
     this.toggleModal();
   };
-  render() {
-    const {
-      searchImages,
-      showModal,
-      largeImage: { id, src, alt },
-    } = this.state;
-    return (
-      <>
-        <Header>
-          <Container>
-            <Searchbar onSubmit={this.handleFormSubmit} />
-          </Container>
-        </Header>
+
+  return (
+    <>
+      <Header>
         <Container>
-          <Main>
-            <ImageGallery
-              searchImages={searchImages}
-              onClick={this.handlerFullSizeImage}
-            />
-          </Main>
+          <Searchbar onSubmit={formSubmitHandler} />
         </Container>
-        <ToastContainer autoClose={2500} />
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            {<img id={id} src={src} alt={alt} />}
-          </Modal>
-        )}
-      </>
-    );
-  }
+      </Header>
+      <Container>
+        <Main>
+          {status === STATUS.PENDING && (
+            <Modal>
+              <Loader />
+            </Modal>
+          )}
+          <ImageGallery
+            collection={collection}
+            onClick={fullSizeImageHandler}
+          />
+          {collection.length > 0 && <Button onClick={loadMoreHandler} />}
+        </Main>
+      </Container>
+      <ToastContainer autoClose={2500} />
+      {showModal && (
+        <Modal onClose={toggleModal}>
+          {/* {<img id={id} src={src} alt={alt} />} */}
+        </Modal>
+      )}
+    </>
+  );
 }
