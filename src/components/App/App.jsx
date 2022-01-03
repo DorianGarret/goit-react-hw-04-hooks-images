@@ -70,16 +70,13 @@ export default function App() {
   };
 
   const fullSizeImageHandler = ({ target: { id, alt, dataset } }) => {
-    this.setState({
-      largeImage: {
-        id,
-        alt,
-        src: dataset.full_size,
-      },
-    });
-    this.toggleModal();
-  };
+    let src = dataset.full_size;
 
+    setLargeImage({ id, alt, src });
+
+    toggleModal();
+  };
+  const { id, alt, src } = largeImage;
   return (
     <>
       <Header>
@@ -90,7 +87,7 @@ export default function App() {
       <Container>
         <Main>
           {status === STATUS.PENDING && (
-            <Modal>
+            <Modal onClose={toggleModal}>
               <Loader />
             </Modal>
           )}
@@ -104,7 +101,7 @@ export default function App() {
       <ToastContainer autoClose={2500} />
       {showModal && (
         <Modal onClose={toggleModal}>
-          {/* {<img id={id} src={src} alt={alt} />} */}
+          {<img id={id} alt={alt} src={src} />}
         </Modal>
       )}
     </>

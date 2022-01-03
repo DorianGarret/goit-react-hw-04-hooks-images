@@ -3,11 +3,11 @@ import ImageGalleryItem from 'components/ImageGallery/ImageGalleryItem';
 
 import { List } from './ImageGallery.styled';
 
-export default function ImageGallery({ collection }) {
+export default function ImageGallery({ onClick, collection }) {
   return (
     <List>
       {collection.map(item => (
-        <ImageGalleryItem key={item.id} params={item} />
+        <ImageGalleryItem onClick={onClick} key={item.id} params={item} />
       ))}
     </List>
   );

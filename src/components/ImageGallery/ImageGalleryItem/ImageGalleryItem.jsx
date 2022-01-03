@@ -13,7 +13,7 @@ export default function ImageGalleryItem({
         src={webformatURL}
         alt={tags}
         data-full_size={largeImageURL}
-        // onClick={onClick}
+        onClick={onClick}
       />
     </Item>
   );
